@@ -27,17 +27,14 @@ architecture behavioral of euler2 is
   
 begin  -- behavioral
 
-  -- purpose: hold the first fibonacci number
-  -- type   : sequential
-  -- inputs : clk, reset, enable, fibonacci
-  -- outputs: R1_q
+  -- fibonacci registers and accumulator for fibonacci evens
   fib_reg : process (clk, reset) is
   begin  -- process R1
-    if reset = '1' then                 -- asynchronous reset (active high)
+    if reset = '1' then                 
       fib_r1      <= x"00000001";
       fib_r2      <= (others => '0');
       results_int <= (others => '0');
-    elsif rising_edge(clk) then         -- rising clock edge
+    elsif rising_edge(clk) then         
         if enable = '1' then
           fib_r1 <= sum;
           fib_r2 <= fib_r1;
@@ -49,7 +46,7 @@ begin  -- behavioral
   end process fib_reg;
   sum <= fib_r1 + fib_r2;
 
-  even              <= '1' when sum(0) <= '0' else '0';
+  even              <= '1' when sum(0) = '0' else '0';
   results_valid_int <= '1' when sum >= max_count else '0';
   results_valid <= results_valid_int;
   results <= results_int; 
