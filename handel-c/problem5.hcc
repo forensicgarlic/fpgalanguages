@@ -1,0 +1,80 @@
+#include <builtin.hch>
+
+set clock = external;
+
+// calculates gcd, takes arguments by value
+macro proc gcd (a, b, res)
+{	
+	unsigned s, x, y;
+	par { s = 0; x = a; y = b; }
+	while (x!=0 && y!=0)
+	par {
+	   if (x % 2 == 0 && y % 2 == 0)
+		par {x = x/2; y = y/2; s=s+1;}
+
+	   if (x % 2 == 1 && y % 2 == 1)
+		if (x>y) x = x - y; else y = y - x;
+
+	   if (x % 2 == 0 && y % 2 == 1)
+		x = x / 2;
+
+	   if (x % 2 == 1 && y % 2 == 0)
+		y = y / 2;
+
+           delay;
+	}
+	res = (x==0?y:x);
+	res = res << s;
+}
+
+// the gcd code is a bit too complex to trust without testing ...
+
+struct gcd_test_triple 
+{ 
+	unsigned 32 x; 
+	unsigned 32 y; 
+	unsigned 32 expected; 
+};
+
+macro proc gcd_unit_tests ()
+{
+	static struct gcd_test_triple tests [] =
+		{{1,1,1}, {2,1,1}, {1,2,1}, {2,2,2}, {15 * 23, 15 * 77, 15}};
+
+	unsigned i;
+	
+	i = 0;
+
+	while (i<6)
+	{
+		unsigned a, b, c;
+		a = tests[i].x;
+		b = tests[i].y;
+		gcd (a, b, c);
+		assertf (c==tests[i].expected, "Expected gcd(%u, %u)=%u but got %u\n",
+			tests[i].x, tests[i].y, tests[i].expected, c);		
+		i++;
+	}
+}
+
+
+void main ()
+{
+	static unsigned 40 res = 2;
+	static unsigned 5 i = 3;
+
+	gcd_unit_tests ();
+
+	while (i<=20)
+	{
+		unsigned common, tmp;
+
+		gcd (res, 0@i, common);	
+	        res = res * (0@i);		
+	        // this tells the compiler the gcd can be at most as wide as i
+		res = res / (0@(common <- width(i))); 
+		i ++;
+	}
+	strobef ("The LCM of [1..20] is %u\n", res);
+}
+

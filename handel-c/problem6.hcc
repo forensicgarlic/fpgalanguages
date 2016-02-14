@@ -1,0 +1,24 @@
+#include <builtin.hch>
+
+set clock = external;
+
+// Sum of the series [1..n] is n/2(1+n). 
+macro expr series_sum (n) = 
+        (n+1) * n / 2;
+
+// Sum of the squares of [1..n] is just (2n^3+3n^2+n)/6. 
+macro expr squares_sum (n) =
+	let macro expr square = n * n; in
+	let macro expr cube = square * n; in
+	(2 * cube + 3 * square + n) / 6;
+
+// Get the difference
+macro expr diff (n) =
+	let macro expr plain_sum = series_sum (n); in
+	plain_sum * plain_sum - squares_sum (n);
+
+void main ()
+{
+	static unsigned 32 res = diff (100);
+	strobef ("Result of problem 6 is %u\n", res);	
+}

@@ -1,0 +1,59 @@
+#include <builtin.hch>
+
+set clock = external;
+
+// The result is going to be of the form abccba, or
+// 100000a + 10000b + 1000c + 100c + 10b + a
+//
+// This can be simplified to 11(9091a + 910b + 100c),
+// so the inner loop only needs to check a fraction
+// of the 3-digit divisors.
+//
+// So we just need to find a,b,c that are divisible
+// by the largest possible three-digit multiple of
+// eleven.
+
+
+void main ()
+{
+	static unsigned 20 a = 10, b, c, result, div;
+	static unsigned 20 done = 0;
+
+	while (a > 1 && !done)
+	{
+		par { a = a - 1; b = 10; }
+		while (b >= 0 && !done)
+		{
+			par { b = b - 1; c = 10; }
+			while (c > 0)
+			{
+		          
+			   par {
+				c = c - 1; 
+				div = 990;   // Largest multiple of 11 that fits into three digits 
+				result = 1;  // Any value not divisible by div will do
+			   }
+
+			   // This loop is pipelined so the mod and the multiplications can
+  			   // happen in parallel. Hence the guard allows one iteration after
+			   // the smallest div that takes up three digits. Its purpose is to check
+			   // if a prospective result factorises into two three-digit numbers.
+			   while (div >= 100-11 && !done)
+			   {
+				par {
+					result = 100001 * a + 10010 * b + 1100 * c;
+					if (result % div == 0 && result / div < 1000) done = result;
+					div -= 11;
+				}
+			   }
+
+			}
+		
+		} 
+
+	}
+
+	// we might as well assume the solution exists ...
+	strobef ("Result of problem 4 is %u\n", done);
+}
+

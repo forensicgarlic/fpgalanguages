@@ -1,0 +1,18 @@
+#include "builtin.hch"
+
+
+void  main ()
+{
+    static unsigned 40 n = 600851475143, d = 2;
+    static unsigned q, r=1;
+
+   
+    while (d * d < n)
+	par {      
+           q = n / d;
+           r = n % d;
+           if (r==0) n = q; else d = d + (d==2?1:2);  
+    	}
+
+    strobef ("Largest prime factor is %d\n", n);
+}

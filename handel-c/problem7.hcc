@@ -1,0 +1,97 @@
+#include <builtin.hch>
+
+set clock = external;
+
+macro expr addrwidth = 16;
+macro expr arraysize = 1 << addrwidth;
+macro expr nth = 10001;
+
+macro proc sieve_array (bitmap, res)
+{		
+	// Start counting primes at 3 (because 3 is bit 1 of the bitmap)
+	static unsigned current_prime = 1; 
+
+	// So we need to count 2 (which cannot be represented in the array) and 3
+	static unsigned addrwidth primes_including_current = 2;
+
+	while (primes_including_current < nth && current_prime <= arraysize-1)
+	{
+		unsigned (2+addrwidth) i, step; 
+
+		// This prints the primes as they are discovered, or would
+		// strobef ("%u is prime\n", current_prime@((unsigned 1)1));
+
+		// Mark multiples of current prime as composites.
+		// We could save sime cycles here, but it won't
+                // make much difference since the runtime is dominated
+		// by the inner loop body.
+
+		step = 2 * (0@current_prime) + 1;
+		i = (0@current_prime) + step;				
+		
+		while (i <= arraysize-1) par {
+			bitmap[i <- addrwidth] = 1;
+			i = i + step;
+		}
+
+		// Find the next prime
+		do current_prime ++; while (current_prime <= arraysize-1 && bitmap[current_prime]); 
+				
+		primes_including_current ++;						
+	}
+
+	*res = current_prime;
+}
+
+macro proc sieve_unit_test_array_check (array)
+{
+	static unsigned expected [13] = 
+		{ 
+			1, // 1 (not significant)
+			1, // 3
+			1, // 5 
+			1, // 7
+			0, // 9
+			1, // 11
+			1, // 13
+			0, // 15
+			1, // 17
+			1, // 19
+			0, // 21
+			1, // 23
+			0, // 25
+		};
+
+	unsigned i;
+
+	i = 0;
+	while (i<13)
+	{						
+		assertf (!array[0@i]==expected[i], "The primeness of %u should be %u\n", i, expected[i]);
+		i ++;
+	}	
+}
+
+
+
+void main ()
+{
+	// Erathosthenes sieve. bitmap[i] means that 2i+1 is composite.
+	ram unsigned 1 bitmap [arraysize];
+	static unsigned r = 42;
+
+	sieve_array (bitmap, &r);
+
+	// quick check that everything is sane (takes trivial time)
+	sieve_unit_test_array_check (bitmap);
+
+	if (r == 0)
+	{
+		strobef ("The array was too small to find the required prime\n");
+	}
+	else
+	{
+		strobef ("The result of problem 7 is %u\n", r@((unsigned 1)1) );
+	}
+	
+}

@@ -1,0 +1,27 @@
+#include <builtin.hch>
+
+// fib(n) = 4*fib(n-3) + fib(n-6)
+
+void main ()
+{
+    static unsigned 32 a=0, b=2, s=0;
+    macro expr max = 4000000;
+    static unsigned 1 results_valid_int = 0;
+    unsigned 32 results_int; 
+
+    interface bus_out() results( unsigned 32 results=results_int);
+    interface bus_out() results_valid( unsigned 1 results_valid=results_valid_int);
+
+
+	while (s < max) par
+	{
+		s += a;
+		b = a + 4 * b; // new f(n)
+		a = b;	       // new f(n-1)	
+	}
+        par{
+            strobef ("Result of problem 2 is %d\n", s);
+            results_valid_int = 1;
+            results_int = s; 
+        }
+}

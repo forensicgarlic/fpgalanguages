@@ -1,0 +1,50 @@
+#include <builtin.hch>
+
+set clock = external;
+
+macro expr series_sum (step, maxbound) = 
+        let macro expr n = (maxbound-1)/step; in
+        (n+1) * n * step / 2;
+
+macro expr asymmetric_up_to = 1000;
+
+void main ()
+{
+/*        unsigned 32 res;
+        res = 
+            series_sum (3, asymmetric_up_to) + 
+            series_sum (5, asymmetric_up_to) - 
+            series_sum (15, asymmetric_up_to);  
+        strobef ("Result of problem 1 is %d\n", res);
+*/
+
+
+    static unsigned 32 number = 1; 
+    unsigned 3 mod5; 
+    unsigned 2 mod3;
+    static signal unsigned 1 accumulate_en = 0;
+    unsigned 1 results_valid_int;
+    macro expr max = 999;
+    unsigned 32 results_int; 
+
+
+    interface bus_out() results( unsigned 32 results=results_int);
+    interface bus_out() results_valid( unsigned 1 results_valid=results_valid_int);
+
+        while(1) par{
+            number = number + 1; 
+            mod5 = (mod5 + 1) % 5;
+            mod3 = (mod3 + 1) % 3;
+
+            if (mod5 == 4 || mod3 == 2) 
+                accumulate_en = 1;
+            if (accumulate_en) par{
+                results_int = results_int + number;
+            }
+            if (number == max) par{
+                results_valid_int = 1;
+                strobef("result of problem1 is %d \n", results_int);
+            }
+        }
+
+}
