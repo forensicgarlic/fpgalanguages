@@ -29,8 +29,23 @@ def euler2(results, results_valid, n, clk, reset):
             results_int.next = results_int + mysum
     return a, b, c
 
+def hardway2(results, results_valid, max_value, enable, clk, reset):
+    """ implements a pythonlike solution to https://projecteuler.net/problem=2 """
+
+    @always_seq(clk.posedge, reset)
+    def hardheaded2():
+        f1 = 1
+        f2 = 1
+        results = 0
+        while (f1 + f2) < max_value:
+            results = results + f1 + f2
+            f1, f2 = f1 + (2 * f2), (2 * f1) + (3 * f2)
+    return hardheaded2x
+
 def euler2_hw(results, results_valid, max_value, enable, clk, reset):
     """ implements a pythonlike solution to https://projecteuler.net/problem=2 """
+
+
 
     mysum, fib_r1, fib_r2 = [Signal(intbv(1)[64:]) for i in range(3)]
     even, results_valid_int = [Signal(bool()) for i in range(2)]
@@ -84,7 +99,6 @@ class TestEuler2(TestCase):
         f1 = 1
         f2 = 1
         mysum = 0
-        print " "
         while (f1 + f2) < n:
             mysum = mysum + f1 + f2
             f1, f2 = f1 + (2 * f2), (2 * f1) + (3 * f2)
@@ -149,4 +163,10 @@ class TestEuler2(TestCase):
         Simulation(dut, check, self.clk_inst).run(300000)
         euler_hw_inst = toVHDL(euler2_hw, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
 
+    def test_hardheaded(self):
+        dut = traceSignals(hardheaded2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
+        check = self.checkResultHw()
+        Simulation(dut, check, self.clk_inst).run(300000)
+        #euler_hardheaded_inst = toVHDL(hardheaded2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
+        
 unittest.main()
