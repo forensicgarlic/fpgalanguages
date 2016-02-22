@@ -40,7 +40,7 @@ def hardway2(results, results_valid, max_value, enable, clk, reset):
         while (f1 + f2) < max_value:
             results = results + f1 + f2
             f1, f2 = f1 + (2 * f2), (2 * f1) + (3 * f2)
-    return hardheaded2x
+    return hardheaded2
 
 def euler2_hw(results, results_valid, max_value, enable, clk, reset):
     """ implements a pythonlike solution to https://projecteuler.net/problem=2 """
@@ -116,10 +116,13 @@ class TestEuler2(TestCase):
                 raise StopSimulation
 
     def set_and_check(self, max_value):
+        print "in set and check"
         self.max_value.next = max_value;
         yield self.clk.negedge
         self.enable.next = True
         yield self.results_valid
+        print "expected results = %d" % self.euler2_py(self.max_value)
+        print "actual results   = %d" % self.results
         self.assertEqual(self.results, self.euler2_py(self.max_value),
                              "does " + str(self.results) + " == " + str(self.euler2_py(self.max_value)) + " for max == " + str(self.max_value))
         yield self.clk.negedge
@@ -132,7 +135,9 @@ class TestEuler2(TestCase):
         yield self.clk.negedge
         self.reset.next = 0
 
+        print "set and check 100"
         self.set_and_check(100)
+        print "set and check 10000"
         self.set_and_check(10000)
 
         raise StopSimulation
@@ -158,15 +163,17 @@ class TestEuler2(TestCase):
         # euler_inst = toVHDL(euler2, self.results, self.results_valid, 4000000, self.clk, self.reset)
 
     def test_hw(self):
+        print "testing test_hw"
         dut = traceSignals(euler2_hw, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
         check = self.checkResultHw()
         Simulation(dut, check, self.clk_inst).run(300000)
         euler_hw_inst = toVHDL(euler2_hw, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
 
     def test_hardheaded(self):
-        dut = traceSignals(hardheaded2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
+        print "testing hardheaded"
+        dut = traceSignals(hardway2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
         check = self.checkResultHw()
         Simulation(dut, check, self.clk_inst).run(300000)
-        #euler_hardheaded_inst = toVHDL(hardheaded2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
+        #euler_hardheaded_inst = toVHDL(hardway2, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
         
 unittest.main()
