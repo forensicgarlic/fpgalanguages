@@ -1,3 +1,9 @@
 *.vcd
 *.vcd.*
 *.vhd
+#*
+*#
+*~
+*.qpf
+*.qsf
+*.qws

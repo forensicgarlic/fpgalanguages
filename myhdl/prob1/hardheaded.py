@@ -10,8 +10,6 @@ def hardway(results, results_valid, max_count, enable, clk, reset):
     threes, fives, fifteens = [Signal(intbv(0,0,500000)) for i in range(3)]
     sumthrees, sumfives, sumfifteens = [Signal(intbv(0,0,500000)) for i in range(3)]
 
-
-
     def if_less_add(counter, max_count, count_value, accumulator, enable, clk, reset):
         ''' we could use this as an accumulator function. It doesn't save lines of code, but does save rewritten code'''
         @always_seq(clk.posedge, reset)
