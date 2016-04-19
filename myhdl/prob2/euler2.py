@@ -120,7 +120,6 @@ class TestEuler2(TestCase):
 
 
     def test_hardheaded(self):
-        print "testing hardheaded"
         dut = traceSignals(euler2_hw, self.results, self.results_valid, self.max_value, self.enable, self.clk, self.reset)
         check = self.checkResultHw()
         Simulation(dut, check, self.clk_inst).run(3000)
