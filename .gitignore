@@ -1,3 +1,5 @@
 modelsim.ini
 vsim.wlf
 transcript
+*.vcd
+*.*~
