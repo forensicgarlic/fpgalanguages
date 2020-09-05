@@ -1,4 +1,4 @@
-all: sim synth
+all: sim 
 
 sim: waves_euler1.vcd
 

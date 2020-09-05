@@ -3,3 +3,6 @@ vsim.wlf
 transcript
 *.vcd
 *.*~
+*.out
+obj_dir/
+*.fst
